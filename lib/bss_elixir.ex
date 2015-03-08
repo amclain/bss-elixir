@@ -16,6 +16,7 @@ defmodule BssElixir do
   end
   
   def setsvpercent pid, addr, sv, data do
+    IO.puts "Set percent: #{data}"
     data = data * 65536
     send_packet pid, 0x8D, addr, sv, data
   end
@@ -29,7 +30,6 @@ defmodule BssElixir do
   end
   
   defp send_packet pid, cmd, addr, sv, data do
-    IO.puts "Value: #{data}\n"
     packet = SoundwebMessage.struct_to_binary \
       %{cmd: cmd, addr: addr, sv: sv, data: data}
     
@@ -40,13 +40,18 @@ defmodule BssElixir do
   
   def handle_call {:connect, ip, port}, _from, state do
     {:ok, socket} = :gen_tcp.connect ip, port, [:binary, active: true]
-    IO.puts "Connected to BSS at: #{inspect ip}:#{port}~n"
+    IO.puts "Connected to BSS at: #{inspect ip}:#{port}"
     state = %{state | connection: socket}
     {:reply, :connecting, state}
   end
   
   def handle_cast {:packet, packet}, state do
     :gen_tcp.send state[:connection], packet
+    {:noreply, state}
+  end
+  
+  def handle_info info, state do
+    IO.puts "Socket received: #{inspect info}"
     {:noreply, state}
   end
   

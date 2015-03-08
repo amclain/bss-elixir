@@ -6,7 +6,7 @@ defmodule BssElixirTest do
     {:ok, pid} = BssElixir.start_link
     assert pid
     
-    :sys.trace pid, true
+    # :sys.trace pid, true
     
     BssElixir.connect pid, {10,10,11,5}
     BssElixir.subscribesvpercent pid, 0x100103000137, 0x0000
