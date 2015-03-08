@@ -39,25 +39,25 @@ defmodule SoundwebMessage do
     end
   end
   
-  # def binary_to_struct bin do
-  #   # bin = :erlang.binary_to_list bin
+  def binary_to_struct bin do
+    <<0x02::8, bin::binary>> = bin
+    <<0x03::8, checksum::8, bin::binary>> = String.reverse bin
+    bin = unescape String.reverse(bin)
     
-  #   <<0x02::8, bin::binary>> = bin
-  #   <<0x03::8, checksum::8, bin::binary>> = String.reverse bin
-  #   bin = unescape String.reverse(bin)
+    # Validate checksum
+    ^checksum = calc_checksum bin
     
-  #   # <<cmd::8, addr::48, sv::16, data::32>> = bin
-    
-  #   IO.inspect bin
-  #   cs = :lists.foldl fn(x,a) -> bxor(x,a) end, 0, :erlang.binary_to_list(bin)
-  #   IO.inspect checksum
-  #   IO.inspect cs
-    
-  #   # [0x03|bin] = :lists.reverse bin
-  #   # bin = :lists.reverse bin
-    
-    
-  #   # :erlang.list_to_binary bin
-  # end
+    <<cmd::8, addr::48, sv::16, data::32>> = bin
+    %{cmd: cmd, addr: addr, sv: sv, data: data}
+  end
+  
+  def struct_to_binary struct do
+    bin = <<struct[:cmd]::8, struct[:addr]::48, struct[:sv]::16, struct[:data]::32>>
+    <<0x02::8>> <> escape(bin <> <<calc_checksum(bin)::8>>) <> <<0x03::8>>
+  end
+  
+  defp calc_checksum bin do
+    :lists.foldl fn(x,a) -> bxor(x,a) end, 0, :erlang.binary_to_list(bin)
+  end
   
 end
