@@ -2,12 +2,29 @@
 defmodule BssElixirTest do
   use ExUnit.Case
 
-  test "init" do
+  test "integration" do
     {:ok, pid} = BssElixir.start_link
-    IO.inspect pid
     assert pid
     
-    BssElixir.connect pid, {10,10,3,1}
+    :sys.trace pid, true
+    
+    BssElixir.connect pid, {10,10,11,5}
+    
+    # Ramp the gain
+    BssElixir.setsvpercent pid, 0x100103000137, 0x0000, 0
+    :timer.sleep 1000
+    
+    BssElixir.setsvpercent pid, 0x100103000137, 0x0000, 25
+    :timer.sleep 1000
+    
+    BssElixir.setsvpercent pid, 0x100103000137, 0x0000, 50
+    :timer.sleep 1000
+    
+    BssElixir.setsvpercent pid, 0x100103000137, 0x0000, 75
+    :timer.sleep 1000
+    
+    BssElixir.setsvpercent pid, 0x100103000137, 0x0000, 100
+    :timer.sleep 100 # Let async message propagate
   end
   
 end
