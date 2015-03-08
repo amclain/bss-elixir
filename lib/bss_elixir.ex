@@ -16,10 +16,14 @@ defmodule BssElixir do
   end
   
   def setsvpercent pid, addr, sv, data do
-    IO.puts "Value: #{data}\n"
     data = data * 65536
+    send_packet pid, 0x8D, addr, sv, data
+  end
+  
+  defp send_packet pid, cmd, addr, sv, data do
+    IO.puts "Value: #{data}\n"
     packet = SoundwebMessage.struct_to_binary \
-      %{cmd: 0x8D, addr: addr, sv: sv, data: data}
+      %{cmd: cmd, addr: addr, sv: sv, data: data}
     
     GenServer.cast pid, {:packet, packet}
   end
