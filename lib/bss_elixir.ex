@@ -20,6 +20,14 @@ defmodule BssElixir do
     send_packet pid, 0x8D, addr, sv, data
   end
   
+  def subscribesvpercent pid, addr, sv do
+    send_packet pid, 0x8E, addr, sv, 0
+  end
+  
+  def unsubscribesvpercent pid, addr, sv do
+    send_packet pid, 0x8F, addr, sv, 0
+  end
+  
   defp send_packet pid, cmd, addr, sv, data do
     IO.puts "Value: #{data}\n"
     packet = SoundwebMessage.struct_to_binary \
